@@ -1,5 +1,16 @@
-import mongoose from "mongoose";
-const noteSchema = new mongoose.Schema({
+import mongoose, { Document } from "mongoose";
+import { UserDocument } from "./User";
+
+// NoteDocument Interface
+export interface NoteDocument extends Document {
+  title: string;
+  description: string;
+  isCompleted: boolean;
+  user: UserDocument["_id"];
+  createdAt: Date;
+}
+// note schema
+const noteSchema = new mongoose.Schema<NoteDocument>({
   title: {
     type: String,
     required: true,
@@ -23,4 +34,4 @@ const noteSchema = new mongoose.Schema({
   },
 });
 
-export const Note = mongoose.model("Note", noteSchema);
+export const Note = mongoose.model<NoteDocument>("Note", noteSchema);

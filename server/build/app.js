@@ -6,23 +6,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+// import routes
+const User_1 = __importDefault(require("./routes/User"));
+const Note_1 = __importDefault(require("./routes/Note"));
 const app = (0, express_1.default)();
 // Middlewares
-app.use(express_1.default.json());
-app.use((0, cookie_parser_1.default)());
 app.use((0, cors_1.default)({
     origin: "http://localhost:3000",
     credentials: true,
 }));
-// Import routes
-// const nameRoutes = require("./routes/name");
+app.use(express_1.default.json());
+app.use((0, cookie_parser_1.default)());
 // Mount routes
-// app.use("/api/v1/name", nameRoutes);
+app.use("/api/v1/auth", User_1.default);
+app.use("/api/v1/notes", Note_1.default);
 // Default route
 app.get("/", (req, res) => {
     return res.json({
         success: true,
-        message: "Notes server is up and running",
+        message: "API server is up and running",
     });
 });
 exports.default = app;
