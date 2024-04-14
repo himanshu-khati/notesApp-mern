@@ -29,7 +29,7 @@ export const register = async (
     const hashedPassword = await bcrypt.hash(password, 10);
     // Save to database
     user = await User.create({ name, email, password: hashedPassword });
-    console.log("user: ", user);
+  
     // Generate token
     sendCookies(user, res, "Registered successfully", 201);
   } catch (error: any) {
@@ -105,6 +105,8 @@ export const logout = async (
       .json({
         success: true,
         message: `You are now logged out`,
+        sameSite: process.env.NODE_ENV === "DEVELOPMENT" ? "lax" : "none",
+        secure: process.env.NODE_ENV === "DEVELOPMENT" ? false : true,
       });
   } catch (error: any) {
     return next(new ErrorHandler(`Error logging out: ${error.message}`, 500));

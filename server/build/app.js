@@ -11,9 +11,11 @@ const User_1 = __importDefault(require("./routes/User"));
 const Note_1 = __importDefault(require("./routes/Note"));
 const error_1 = require("./middlewares/error");
 const app = (0, express_1.default)();
+const FRONTEND_URL = process.env.FRONTEND_URL || "";
 // Middlewares
 app.use((0, cors_1.default)({
-    origin: "http://localhost:3000",
+    origin: [FRONTEND_URL],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
 }));
 app.use(express_1.default.json());

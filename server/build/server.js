@@ -9,6 +9,7 @@ const connectDatabase = require("./config/database");
 dotenv_1.default.config();
 connectDatabase();
 const PORT = process.env.PORT || 4000;
+const NODE_ENV = process.env.NODE_ENV;
 app_1.default.listen(PORT, () => {
-    console.log(`app is listening on port: ${PORT}`);
+    console.log(`app is listening on port: ${PORT} in ${NODE_ENV} mode`);
 });

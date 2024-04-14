@@ -13,6 +13,8 @@ const sendCookies = (user, res, message, statusCode = 200) => {
         .cookie("token", token, {
         httpOnly: true,
         maxAge: 1000 * 60 * 15,
+        sameSite: process.env.NODE_ENV === "DEVELOPMENT" ? "lax" : "none",
+        secure: process.env.NODE_ENV === "DEVELOPMENT" ? false : true,
     })
         .json({
         success: true,
