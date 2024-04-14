@@ -9,6 +9,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 // import routes
 const User_1 = __importDefault(require("./routes/User"));
 const Note_1 = __importDefault(require("./routes/Note"));
+const error_1 = require("./middlewares/error");
 const app = (0, express_1.default)();
 // Middlewares
 app.use((0, cors_1.default)({
@@ -27,4 +28,5 @@ app.get("/", (req, res) => {
         message: "API server is up and running",
     });
 });
+app.use(error_1.errorMiddleware);
 exports.default = app;

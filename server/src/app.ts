@@ -1,10 +1,11 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
 // import routes
 import userRoutes from "./routes/User";
 import noteRoutes from "./routes/Note";
+import { errorMiddleware } from "./middlewares/error";
 
 const app = express();
 
@@ -29,5 +30,7 @@ app.get("/", (req: Request, res: Response) => {
     message: "API server is up and running",
   });
 });
+
+app.use(errorMiddleware);
 
 export default app;

@@ -1,153 +1,126 @@
-import { Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { Note } from "../models/Note";
 import { AuthenticatedRequest } from "../middlewares/auth";
-import { title } from "process";
+import ErrorHandler from "../middlewares/error";
 
-// add new note
-export const newNote = async (req: AuthenticatedRequest, res: Response) => {
+// Add new note
+export const newNote = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    // fetch data from body
+    // Fetch data from body
     const { title, description } = req.body;
-    // validate
-    if (!title || !description) {
-      res.status(400).json({
-        success: false,
-        message: `all fields are required`,
-      });
-    }
-    // get user
+    // Validate
+    if (!title || !description)
+      return next(new ErrorHandler("All fields are required", 400));
+    // Get user
     const user = req.user;
-    // create note
+    // Create note
     const note = await Note.create({
       title,
       description,
       user: user,
     });
-    // return response
-    res.status(200).json({
+    // Return response
+    res.status(201).json({
       success: true,
-      message: `note added successfully`,
+      message: `Note added successfully`,
       note,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: `something went wrong adding a new note: ${
-        (error as Error).message
-      }`,
-    });
+    next(new ErrorHandler(`Error adding a new note: ${error.message}`, 500));
   }
 };
 
-// get all notes
-export const getAllNotes = async (req: AuthenticatedRequest, res: Response) => {
+// Get all notes
+export const getAllNotes = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const user = req.user;
-    if (!user) {
-      return res.status(401).json({
-        sucess: false,
-        message: `user not found`,
-      });
-    }
+    if (!user) return next(new ErrorHandler("User not found", 401));
     const userId = user._id;
     const notes = await Note.find({ user: userId });
-    if (notes.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: `No notes found for the user`,
-      });
-    }
+    if (notes.length === 0)
+      return next(new ErrorHandler("No notes found for the user", 404));
     res.status(200).json({
       success: true,
-      message: `all notes fetched successfully`,
+      message: `All notes fetched successfully`,
       notes,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: `something went wrong adding fetching note: ${
-        (error as Error).message
-      }`,
-    });
+    next(new ErrorHandler(`Error fetching notes: ${error.message}`, 500));
   }
 };
 
-// delete note
-export const deleteNote = async (req: AuthenticatedRequest, res: Response) => {
+// Delete note
+export const deleteNote = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    // get note id from request params
+    // Get note ID from request params
     const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        message: `Note ID is required`,
-      });
-    }
-    // find note in database
+    // Validate
+    if (!id) return next(new ErrorHandler("Note ID is required", 400));
+
+    // Find note in database
     const note = await Note.findById(id);
-    // validate if note exists
-    if (!note) {
-      return res.status(401).json({
-        success: false,
-        message: `note not found`,
-      });
-    }
-    // delete note
+    // Validate if note exists
+    if (!note) return next(new ErrorHandler("Note not found", 404));
+    // Delete note
     await Note.findByIdAndDelete(id);
-    // return response
+    // Return response
     res.status(200).json({
       success: true,
-      message: `note deleted successfully`,
+      message: `Note deleted successfully`,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: `something went wrong deleting note: ${
-        (error as Error).message
-      }`,
-    });
+    next(new ErrorHandler(`Error deleting note: ${error.message}`, 500));
   }
 };
 
-// update note
-export const updateNote = async (req: AuthenticatedRequest, res: Response) => {
+// Update note
+export const updateNote = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    // get note id from request params
+    // Get note ID from request params
     const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        message: `Note ID is required`,
-      });
-    }
+    // Validate
+    if (!id) return next(new ErrorHandler("Note ID is required", 400));
+
+    // Fetch data from body
     const { title, description } = req.body;
-    // find note in database
+    // Validate
+    if (!title || !description)
+      return next(new ErrorHandler("Title and description are required", 400));
+
+    // Find note in database
     let note = await Note.findById(id);
-    // validate if note exists
-    if (!note) {
-      return res.status(404).json({
-        success: false,
-        message: `note not found`,
-      });
-    }
-    // toggle iscompleted
+    // Validate if note exists
+    if (!note) return next(new ErrorHandler("Note not found", 404));
+
+    // Toggle isCompleted
     note.isCompleted = !note.isCompleted;
-    // update note title and body
+    // Update note title and description
     note.title = title;
     note.description = description;
-    // save note
+    // Save note
     note = await note.save();
     res.status(200).json({
       success: true,
-      message: `note updated successfully`,
+      message: `Note updated successfully`,
       note,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: `something went wrong updating note: ${
-        (error as Error).message
-      }`,
-    });
+    next(new ErrorHandler(`Error updating note: ${error.message}`, 500));
   }
 };

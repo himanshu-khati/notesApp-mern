@@ -1,94 +1,83 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import { User, UserDocument } from "../models/User";
+import { User } from "../models/User";
 import { sendCookies } from "../utils/features";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import { AuthenticatedRequest } from "../middlewares/auth";
+import ErrorHandler from "../middlewares/error";
 
-//  register controller
-export const register = async (req: Request, res: Response) => {
+// Register controller
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    // get data from body
+    // Get data from body
     const { name, email, password } = req.body;
-    // validate
+    // Validate
     if (!name || !email || !password) {
-      return res.status(404).json({
-        success: false,
-        message: `all fields are required`,
-      });
+      return next(new ErrorHandler("All fields are required", 401));
     }
-    // check for existing user
+
+    // Check for existing user
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(409).json({
-        success: false,
-        message: `user already exists`,
-      });
+      return next(new ErrorHandler("User already exists", 409));
     }
-    // hash password
+
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    // save to database
+    // Save to database
     user = await User.create({ name, email, password: hashedPassword });
     console.log("user: ", user);
-    // generate token
-    sendCookies(user, res, "registered successfully", 201);
+    // Generate token
+    sendCookies(user, res, "Registered successfully", 201);
   } catch (error: any) {
-    return res.status(500).json({
-      success: false,
-      message: `something went wrong while registering user: ${
-        (error as Error).message
-      }`,
-    });
+    return next(
+      new ErrorHandler(`Error registering user: ${error.message}`, 500)
+    );
   }
 };
 
-// login controller
-export const login = async (req: Request, res: Response) => {
+// Login controller
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    // get data from body
+    // Get data from body
     const { email, password } = req.body;
-    // validate
+    // Validate
     if (!email || !password) {
-      return res.status(404).json({
-        success: false,
-        message: `all fields are required`,
-      });
+      return next(new ErrorHandler("All fields are required", 400));
     }
-    // get user
+
+    // Get user
     const user = await User.findOne({ email }).select("+password");
-    // validate
+    // Validate
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: `invalid email or password`,
-      });
+      return next(new ErrorHandler("Invalid email or password", 404));
     }
-    // match password
+
+    // Match password
     const isMatch = await bcrypt.compare(password, user.password);
-    // validate
+    // Validate
     if (!isMatch) {
-      return res.status(404).json({
-        success: false,
-        message: `invalid email or password`,
-      });
+      return next(new ErrorHandler("Invalid email or password", 404));
     }
-    // send cookie and response
+    // Send cookie and response
     sendCookies(user, res, `Welcome back, ${user.name}`, 200);
   } catch (error: any) {
-    return res.status(500).json({
-      success: false,
-      message: `something went wrong while logging in: ${
-        (error as Error).message
-      } `,
-    });
+    return next(new ErrorHandler(`Error logging in: ${error.message}`, 500));
   }
 };
 
-// get user details controller
-
+// Get user details controller
 export const getMyProfile = async (
   req: AuthenticatedRequest,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const user = req.user;
@@ -97,31 +86,27 @@ export const getMyProfile = async (
       user,
     });
   } catch (error: any) {
-    return res.status(500).json({
-      success: false,
-      message: `something went wrong getting user details: ${
-        (error as Error).message
-      }`,
-    });
+    return next(
+      new ErrorHandler(`Error getting user details: ${error.message}`, 500)
+    );
   }
 };
 
-// logout controller
-export const logout = async (req: Request, res: Response) => {
+// Logout controller
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     res
       .status(200)
       .cookie("token", "", { expires: new Date(Date.now()) })
       .json({
         success: true,
-        message: `you are now logged out`,
+        message: `You are now logged out`,
       });
   } catch (error: any) {
-    return res.status(500).json({
-      success: false,
-      message: `something went wrong while logging out: ${
-        (error as Error).message
-      } `,
-    });
+    return next(new ErrorHandler(`Error logging out: ${error.message}`, 500));
   }
 };

@@ -7,85 +7,65 @@ exports.logout = exports.getMyProfile = exports.login = exports.register = void 
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const User_1 = require("../models/User");
 const features_1 = require("../utils/features");
-//  register controller
-const register = async (req, res) => {
+const error_1 = __importDefault(require("../middlewares/error"));
+// Register controller
+const register = async (req, res, next) => {
     try {
-        // get data from body
+        // Get data from body
         const { name, email, password } = req.body;
-        // validate
+        // Validate
         if (!name || !email || !password) {
-            return res.status(404).json({
-                success: false,
-                message: `all fields are required`,
-            });
+            return next(new error_1.default("All fields are required", 401));
         }
-        // check for existing user
+        // Check for existing user
         let user = await User_1.User.findOne({ email });
         if (user) {
-            return res.status(409).json({
-                success: false,
-                message: `user already exists`,
-            });
+            return next(new error_1.default("User already exists", 409));
         }
-        // hash password
+        // Hash password
         const hashedPassword = await bcrypt_1.default.hash(password, 10);
-        // save to database
+        // Save to database
         user = await User_1.User.create({ name, email, password: hashedPassword });
         console.log("user: ", user);
-        // generate token
-        (0, features_1.sendCookies)(user, res, "registered successfully", 201);
+        // Generate token
+        (0, features_1.sendCookies)(user, res, "Registered successfully", 201);
     }
     catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: `something went wrong while registering user: ${error.message}`,
-        });
+        return next(new error_1.default(`Error registering user: ${error.message}`, 500));
     }
 };
 exports.register = register;
-// login controller
-const login = async (req, res) => {
+// Login controller
+const login = async (req, res, next) => {
     try {
-        // get data from body
+        // Get data from body
         const { email, password } = req.body;
-        // validate
+        // Validate
         if (!email || !password) {
-            return res.status(404).json({
-                success: false,
-                message: `all fields are required`,
-            });
+            return next(new error_1.default("All fields are required", 400));
         }
-        // get user
+        // Get user
         const user = await User_1.User.findOne({ email }).select("+password");
-        // validate
+        // Validate
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: `invalid email or password`,
-            });
+            return next(new error_1.default("Invalid email or password", 404));
         }
-        // match password
+        // Match password
         const isMatch = await bcrypt_1.default.compare(password, user.password);
-        // validate
+        // Validate
         if (!isMatch) {
-            return res.status(404).json({
-                success: false,
-                message: `invalid email or password`,
-            });
+            return next(new error_1.default("Invalid email or password", 404));
         }
-        // send cookie and response
+        // Send cookie and response
         (0, features_1.sendCookies)(user, res, `Welcome back, ${user.name}`, 200);
     }
     catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: `something went wrong while logging in: ${error.message} `,
-        });
+        return next(new error_1.default(`Error logging in: ${error.message}`, 500));
     }
 };
 exports.login = login;
-// get user details controller
-const getMyProfile = async (req, res) => {
+// Get user details controller
+const getMyProfile = async (req, res, next) => {
     try {
         const user = req.user;
         res.status(200).json({
@@ -94,29 +74,23 @@ const getMyProfile = async (req, res) => {
         });
     }
     catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: `something went wrong getting user details: ${error.message}`,
-        });
+        return next(new error_1.default(`Error getting user details: ${error.message}`, 500));
     }
 };
 exports.getMyProfile = getMyProfile;
-// logout controller
-const logout = async (req, res) => {
+// Logout controller
+const logout = async (req, res, next) => {
     try {
         res
             .status(200)
             .cookie("token", "", { expires: new Date(Date.now()) })
             .json({
             success: true,
-            message: `you are now logged out`,
+            message: `You are now logged out`,
         });
     }
     catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: `something went wrong while logging out: ${error.message} `,
-        });
+        return next(new error_1.default(`Error logging out: ${error.message}`, 500));
     }
 };
 exports.logout = logout;

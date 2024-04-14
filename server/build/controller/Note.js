@@ -1,149 +1,119 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateNote = exports.deleteNote = exports.getAllNotes = exports.newNote = void 0;
 const Note_1 = require("../models/Note");
-// add new note
-const newNote = async (req, res) => {
+const error_1 = __importDefault(require("../middlewares/error"));
+// Add new note
+const newNote = async (req, res, next) => {
     try {
-        // fetch data from body
+        // Fetch data from body
         const { title, description } = req.body;
-        // validate
-        if (!title || !description) {
-            res.status(400).json({
-                success: false,
-                message: `all fields are required`,
-            });
-        }
-        // get user
+        // Validate
+        if (!title || !description)
+            return next(new error_1.default("All fields are required", 400));
+        // Get user
         const user = req.user;
-        // create note
+        // Create note
         const note = await Note_1.Note.create({
             title,
             description,
             user: user,
         });
-        // return response
-        res.status(200).json({
+        // Return response
+        res.status(201).json({
             success: true,
-            message: `note added successfully`,
+            message: `Note added successfully`,
             note,
         });
     }
     catch (error) {
-        res.status(500).json({
-            success: false,
-            message: `something went wrong adding a new note: ${error.message}`,
-        });
+        next(new error_1.default(`Error adding a new note: ${error.message}`, 500));
     }
 };
 exports.newNote = newNote;
-// get all notes
-const getAllNotes = async (req, res) => {
+// Get all notes
+const getAllNotes = async (req, res, next) => {
     try {
         const user = req.user;
-        if (!user) {
-            return res.status(401).json({
-                sucess: false,
-                message: `user not found`,
-            });
-        }
+        if (!user)
+            return next(new error_1.default("User not found", 401));
         const userId = user._id;
         const notes = await Note_1.Note.find({ user: userId });
-        if (notes.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: `No notes found for the user`,
-            });
-        }
+        if (notes.length === 0)
+            return next(new error_1.default("No notes found for the user", 404));
         res.status(200).json({
             success: true,
-            message: `all notes fetched successfully`,
+            message: `All notes fetched successfully`,
             notes,
         });
     }
     catch (error) {
-        res.status(500).json({
-            success: false,
-            message: `something went wrong adding fetching note: ${error.message}`,
-        });
+        next(new error_1.default(`Error fetching notes: ${error.message}`, 500));
     }
 };
 exports.getAllNotes = getAllNotes;
-// delete note
-const deleteNote = async (req, res) => {
+// Delete note
+const deleteNote = async (req, res, next) => {
     try {
-        // get note id from request params
+        // Get note ID from request params
         const { id } = req.params;
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                message: `Note ID is required`,
-            });
-        }
-        // find note in database
+        // Validate
+        if (!id)
+            return next(new error_1.default("Note ID is required", 400));
+        // Find note in database
         const note = await Note_1.Note.findById(id);
-        // validate if note exists
-        if (!note) {
-            return res.status(401).json({
-                success: false,
-                message: `note not found`,
-            });
-        }
-        // delete note
+        // Validate if note exists
+        if (!note)
+            return next(new error_1.default("Note not found", 404));
+        // Delete note
         await Note_1.Note.findByIdAndDelete(id);
-        // return response
+        // Return response
         res.status(200).json({
             success: true,
-            message: `note deleted successfully`,
+            message: `Note deleted successfully`,
         });
     }
     catch (error) {
-        res.status(500).json({
-            success: false,
-            message: `something went wrong deleting note: ${error.message}`,
-        });
+        next(new error_1.default(`Error deleting note: ${error.message}`, 500));
     }
 };
 exports.deleteNote = deleteNote;
-// update note
-const updateNote = async (req, res) => {
+// Update note
+const updateNote = async (req, res, next) => {
     try {
-        // get note id from request params
+        // Get note ID from request params
         const { id } = req.params;
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                message: `Note ID is required`,
-            });
-        }
+        // Validate
+        if (!id)
+            return next(new error_1.default("Note ID is required", 400));
+        // Fetch data from body
         const { title, description } = req.body;
-        // find note in database
+        // Validate
+        if (!title || !description)
+            return next(new error_1.default("Title and description are required", 400));
+        // Find note in database
         let note = await Note_1.Note.findById(id);
-        // validate if note exists
-        if (!note) {
-            return res.status(404).json({
-                success: false,
-                message: `note not found`,
-            });
-        }
-        // toggle iscompleted
+        // Validate if note exists
+        if (!note)
+            return next(new error_1.default("Note not found", 404));
+        // Toggle isCompleted
         note.isCompleted = !note.isCompleted;
-        // update note title and body
+        // Update note title and description
         note.title = title;
         note.description = description;
-        // save note
+        // Save note
         note = await note.save();
         res.status(200).json({
             success: true,
-            message: `note updated successfully`,
+            message: `Note updated successfully`,
             note,
         });
     }
     catch (error) {
-        res.status(500).json({
-            success: false,
-            message: `something went wrong updating note: ${error.message}`,
-        });
+        next(new error_1.default(`Error updating note: ${error.message}`, 500));
     }
 };
 exports.updateNote = updateNote;
