@@ -8,4 +8,8 @@ This server is created using Express, Mongodb
 2.  PORT
 3.  JWT_SECRET
 4.  FRONTEND_URL
-5.  NODE_ENV = DEVELOPMENT or PRODUCTION
+5.  NODE_ENV = DEVELOPMENT
+6.  MAIL_HOST
+7.  MAIL_PORT
+8.  MAIL_PASS
+9.  MAIL_USER

@@ -8,6 +8,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const User_1 = require("../models/User");
 const features_1 = require("../utils/features");
 const error_1 = __importDefault(require("../middlewares/error"));
+const mailSender_1 = require("../utils/mailSender");
 // Register controller
 const register = async (req, res, next) => {
     try {
@@ -26,6 +27,8 @@ const register = async (req, res, next) => {
         const hashedPassword = await bcrypt_1.default.hash(password, 10);
         // Save to database
         user = await User_1.User.create({ name, email, password: hashedPassword });
+        // send email
+        const mailres = await (0, mailSender_1.mailSender)(email, `welcome to hkNotes`, ` Congratulations ${name} you have successfully regestered with hkNotes`);
         // Generate token
         (0, features_1.sendCookies)(user, res, "Registered successfully", 201);
     }

@@ -4,6 +4,7 @@ import { User } from "../models/User";
 import { sendCookies } from "../utils/features";
 import { AuthenticatedRequest } from "../middlewares/auth";
 import ErrorHandler from "../middlewares/error";
+import { mailSender } from "../utils/mailSender";
 
 // Register controller
 export const register = async (
@@ -29,7 +30,12 @@ export const register = async (
     const hashedPassword = await bcrypt.hash(password, 10);
     // Save to database
     user = await User.create({ name, email, password: hashedPassword });
-  
+    // send email
+    const mailres = await mailSender(
+      email,
+      `welcome to hkNotes`,
+      ` Congratulations ${name} you have successfully regestered with hkNotes`
+    );
     // Generate token
     sendCookies(user, res, "Registered successfully", 201);
   } catch (error: any) {

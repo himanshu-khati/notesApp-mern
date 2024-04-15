@@ -15,7 +15,7 @@ const noteSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
-    isCompleted: {
+    isEdited: {
         type: Boolean,
         default: false,
     },
