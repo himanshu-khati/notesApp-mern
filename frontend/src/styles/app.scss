@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Molle&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Molle&display=swap");
 
 * {
   margin: 0%;
@@ -12,7 +12,7 @@
 @import "header";
 @import "login";
 @import "mediaquery";
-@import "noteItem"; 
+
 
 a {
   text-decoration: none;
@@ -21,6 +21,7 @@ a {
 
 .home {
   text-align: center;
+
   .heading {
     @include styledText(2rem, 100, uppercase);
     padding-top: 10vmax;
@@ -40,7 +41,6 @@ a {
 .note {
   background-color: $color2;
   border-radius: 5px;
-
   @include flexBox(row, center, space-between);
   width: 100%;
   padding: 2rem;
@@ -51,6 +51,16 @@ a {
   input {
     width: 2rem;
     height: 2rem;
+  }
+  .edit-form {
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    @include inputs;
+    textarea {
+      @include inputs;
+    }
   }
 }
 

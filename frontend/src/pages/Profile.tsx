@@ -5,7 +5,6 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { SERVER_AUTH } from "../utils/constants";
 import { Navigate } from "react-router-dom";
-// import { Navigate } from "react-router-dom";
 
 const Profile = () => {
   const {

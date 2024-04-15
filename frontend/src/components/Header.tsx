@@ -23,8 +23,11 @@ const Header = () => {
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.error("Logout error:", error);
-      toast.error("An error occurred during logout.");
+      if (axios.isAxiosError(error)) {
+        toast.error(error?.response?.data.message);
+      } else {
+        toast.error("Some error occurred");
+      }
     } finally {
       setLoading(false);
     }

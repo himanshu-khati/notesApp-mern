@@ -35,10 +35,10 @@ const NoteItem: React.FC<Props> = ({
               value={editedTitle}
               onChange={(e) => setEditedTitle(e.target.value)}
             />
-            <textarea
+            <input
               value={editedDescription}
               onChange={(e) => setEditedDescription(e.target.value)}
-            ></textarea>
+            />
           </div>
         ) : (
           <>

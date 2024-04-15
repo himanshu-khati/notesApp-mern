@@ -111,7 +111,6 @@ const Home = () => {
   };
 
   useEffect(() => {
-    console.log(isAuthenticated);
     if (isAuthenticated) {
       fetchNotes();
     }

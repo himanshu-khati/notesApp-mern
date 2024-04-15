@@ -33,9 +33,11 @@ const Login = () => {
       setIsAuthenticated(true);
       setLoading(false);
     } catch (error) {
-      axios.isAxiosError(error)
-        ? toast.error(error?.response?.data.message)
-        : toast.error("some error");
+      if (axios.isAxiosError(error)) {
+        toast.error(error?.response?.data.message);
+      } else {
+        toast.error("Some error occurred");
+      }
       setIsAuthenticated(false);
       setLoading(false);
     }
