@@ -108,8 +108,8 @@ export const updateNote = async (
     // Validate if note exists
     if (!note) return next(new ErrorHandler("Note not found", 404));
 
-    // Toggle isCompleted
-    note.isCompleted = !note.isCompleted;
+    // set isEdited
+    note.isEdited = true;
     // Update note title and description
     note.title = title;
     note.description = description;

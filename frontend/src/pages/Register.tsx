@@ -16,7 +16,6 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      console.log(name, email, password);
       const { data } = await axios.post(
         `${SERVER_AUTH}/register`,
         {
@@ -32,6 +31,9 @@ const Register = () => {
         }
       );
       toast.success(data.message);
+      setEmail("");
+      setPassword("");
+      setName("");
       setIsAuthenticated(true);
       setLoading(false);
     } catch (error) {

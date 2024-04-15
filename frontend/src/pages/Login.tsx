@@ -27,6 +27,8 @@ const Login = () => {
           withCredentials: true,
         }
       );
+      setEmail("");
+      setPassword("");
       toast.success(data.message);
       setIsAuthenticated(true);
       setLoading(false);

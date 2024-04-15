@@ -15,8 +15,8 @@ export interface ContextValue {
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  user: User;
-  setUser: React.Dispatch<React.SetStateAction<User>>;
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 export const Context = createContext<ContextValue>({
@@ -24,25 +24,13 @@ export const Context = createContext<ContextValue>({
   setIsAuthenticated: () => {},
   loading: false,
   setLoading: () => {},
-  user: {
-    _id: "",
-    name: "",
-    email: "",
-    createdAt: new Date(),
-    __v: 0,
-  },
+  user: null,
   setUser: () => {},
 });
 const AppWrapper = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<User>({
-    _id: "",
-    name: "",
-    email: "",
-    createdAt: new Date(),
-    __v: 0,
-  });
+  const [user, setUser] = useState<User | null>(null);
   return (
     <Context.Provider
       value={{

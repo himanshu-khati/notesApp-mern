@@ -6,22 +6,26 @@ import toast from "react-hot-toast";
 import { SERVER_AUTH } from "../utils/constants";
 
 const Header = () => {
-  const { isAuthenticated, setIsAuthenticated, loading, setLoading } =
+  const { isAuthenticated, setIsAuthenticated, setLoading, setUser } =
     useContext(Context);
+
   const logoutHandler = async () => {
-    setLoading(true);
     try {
-      const { data } = await axios.get(`${SERVER_AUTH}/logout`, {
+      setLoading(true);
+      const response = await axios.get(`${SERVER_AUTH}/logout`, {
         withCredentials: true,
       });
-      toast.success(data.message);
-      setIsAuthenticated(false);
-      setLoading(false);
+      if (response.data.success) {
+        setIsAuthenticated(false);
+        setUser(null);
+        toast.success(response.data.message);
+      } else {
+        toast.error(response.data.message);
+      }
     } catch (error) {
-      axios.isAxiosError(error)
-        ? toast.error(error?.response?.data.message)
-        : toast.error("some error");
-      setIsAuthenticated(true);
+      console.error("Logout error:", error);
+      toast.error("An error occurred during logout.");
+    } finally {
       setLoading(false);
     }
   };
@@ -35,11 +39,7 @@ const Header = () => {
         <Link to="/">Home</Link>
         <Link to="/profile">Profile</Link>
         {isAuthenticated ? (
-          <Link
-            to="/logout"
-            onMouseDown={logoutHandler}
-            aria-disabled={loading}
-          >
+          <Link to="#" onClick={logoutHandler}>
             Logout
           </Link>
         ) : (

@@ -5,7 +5,7 @@ import { UserDocument } from "./User";
 export interface NoteDocument extends Document {
   title: string;
   description: string;
-  isCompleted: boolean;
+  isEdited: boolean;
   user: UserDocument["_id"];
   createdAt: Date;
 }
@@ -19,7 +19,7 @@ const noteSchema = new mongoose.Schema<NoteDocument>({
     type: String,
     required: true,
   },
-  isCompleted: {
+  isEdited: {
     type: Boolean,
     default: false,
   },
